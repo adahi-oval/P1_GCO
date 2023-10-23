@@ -1,4 +1,4 @@
-def readMatrix(filename):
+def readMatrix(filename): # Lee la matriz con el formato adecuado, la primera linea como valor minimo, la segunda como valor maximo y el resto de lineas como usuarios individuales
     with open(filename, "r") as matriz:
         file = matriz.read()
 
@@ -7,7 +7,7 @@ def readMatrix(filename):
 
     return valoraciones, valorMin, valorMax
 
-def sameRatedItems(user1, user2):
+def sameRatedItems(user1, user2): # Devuelve un array con los indices de los items que ambos usuarios han valorado
     commonItemsIndex = []
 
     for i in range(len(user1)):
@@ -18,7 +18,7 @@ def sameRatedItems(user1, user2):
     
     return commonItemsIndex
 
-def userAverage(user):
+def userAverage(user): # Devuelve la media del usuario sin contar los valores vacios con '-'
     intRatings = []
 
     for rating in user:
@@ -29,7 +29,7 @@ def userAverage(user):
     
     return sum(intRatings)/len(intRatings)
 
-def commonItemArrays(user1, user2):
+def commonItemArrays(user1, user2): # Devuelve los arrays de los items valorados por ambos usuarios como floats para calcular con ellos
     commonIndex = sameRatedItems(user1, user2)
     user1Float = []
     user2Float = []
@@ -40,7 +40,7 @@ def commonItemArrays(user1, user2):
 
     return user1Float, user2Float
 
-def pearsonCorelation(user1, user2):
+def pearsonCorelation(user1, user2): # Devuelve la correlacion de Pearson entre dos usuarios
     user1Ratings, user2Ratings = commonItemArrays(user1, user2)
 
     sumNumerador = 0
@@ -54,7 +54,7 @@ def pearsonCorelation(user1, user2):
 
     return (sumNumerador / ((sumDenominador1 ** 0.5) * (sumDenominador2 ** 0.5)))
 
-def pearsonArray(user, matrix):
+def pearsonArray(user, matrix): # Devuelve el array de correlaciones de Pearson con el resto de usuarios de la matriz proporcionada, falta comprobacion de que el usuario esta en la matriz
 
     pearsonRatings = []
 
@@ -67,7 +67,7 @@ def pearsonArray(user, matrix):
     return pearsonRatings
 
 
-def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val, max_val):
+def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val, max_val): # Funcion final que devolverá la matriz rellena con las predicciones dependiendo del método usado
 
     for user in matrix:
         if '-' not in user:
