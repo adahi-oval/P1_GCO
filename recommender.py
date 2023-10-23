@@ -44,7 +44,7 @@ def commonItemArrays(user1, user2): # Devuelve los arrays de los items valorados
     return user1Float, user2Float
 
 
-def pearsonCorelation(user1, user2): # Devuelve la correlacion de Pearson entre dos usuarios
+def pearsonCorelation(user1, user2): # Devuelve la correlacion de Pearson entre dos usuarios, hagan funciones similares para las otras dos con la formula de las diapos
     user1Ratings, user2Ratings = commonItemArrays(user1, user2)
 
     sumNumerador = 0
@@ -70,7 +70,7 @@ def pearsonArray(user, matrix): # Devuelve un array de tuplas de correlaciones d
         correlation = pearsonCorelation(user, otherUser)
         pearsonRatings.append((otherUser, correlation))
 
-    return pearsonRatings
+    return pearsonRatings # Cada elemento del array es la lista de valoraciones del usuario como primer elemento y el segundo elemento la correlacion con el usuario original
 
 
 def similarNeighbours(user, matrix, metrica, numeroVecinos): # Devuelve un array de los vecinos más similares segun la metrica elegida y el numero de vecinos estipulado
@@ -86,7 +86,7 @@ def similarNeighbours(user, matrix, metrica, numeroVecinos): # Devuelve un array
                 matrizSinIncompatibles.append(otherUser)
 
 
-    if metrica == 'pearson':
+    if metrica == 'pearson': # Aqui falta añadir otros dos casos de distancia coseno y distancia euclidea
         corrArray = sorted(pearsonArray(user, matrizSinIncompatibles), key=lambda x: x[1], reverse=True)
         for i in range(numeroVecinos):
             neighbours.append(corrArray[i])
@@ -100,23 +100,36 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
         if '-' not in user:
             continue
 
-        missing_indexes = [(i) for i in range(len(user)) if user[i] == '-']
+        missing_indexes = [(i) for i in range(len(user)) if user[i] == '-'] # Indices de los elementos que tenemos que predecir, se usan para ver la valoracion de los demás usuarios de ese elemento
 
-        if tipoPrediccion == 'simple':
+        if tipoPrediccion == 'simple': # Calcula la prediccion en base a la formula de prediccion simple
             sumNumerador = 0
             sumDenominador = 0
             
-            for index in missing_indexes:
+            for index in missing_indexes: # Bucle para que calcule todos los indices que faltan, porque puede haber mas de uno
                 for otherUser in similarNeighbours(user, matrix, metrica, numeroVecinos):
                     sumNumerador += (otherUser[1] * float(otherUser[0][index]))
                     sumDenominador += abs(otherUser[1])
                 
                 prediction = sumNumerador / sumDenominador
+                user[index] = round(prediction, 2)
 
+        elif tipoPrediccion == 'media': # Calcula la prediccion en base a la formula de distancia con la media
+            sumNumerador = 0
+            sumDenominador = 0
+
+            for index in missing_indexes: # Bucle para que calcule todos los indices que faltan, porque puede haber mas de uno
+                for otherUser in similarNeighbours(user, matrix, metrica, numeroVecinos): # Calcula para cada vecino la predicción
+                    sumNumerador += (otherUser[1] * (float(otherUser[0][index]) - userAverage(otherUser[0])))
+                    sumDenominador += abs(otherUser[1])
+                
+                prediction = userAverage(user) + (sumNumerador / sumDenominador)
                 user[index] = round(prediction, 2)
 
     return matrix
 
+# Main para testear, comprueben con el otro archivo de matriz2.txt también que seguro lo pedirá en clase y en la corrección
+
 ratings, min_val, max_val = readMatrix("matriz.txt")
 
-print(calculatePredictions(ratings, 'pearson', 2, 'simple', min_val, max_val))
+print(calculatePredictions(ratings, 'pearson', 2, 'media', min_val, max_val))
