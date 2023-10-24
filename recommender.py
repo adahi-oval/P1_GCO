@@ -132,4 +132,4 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
 
 ratings, min_val, max_val = readMatrix("matriz.txt")
 
-print(calculatePredictions(ratings, 'pearson', 2, 'media', min_val, max_val))
+print(similarNeighbours(['3.0', '2.0', '-', '4.0'], ratings, 'pearson', 2))
