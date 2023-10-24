@@ -161,32 +161,35 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
         missing_indexes = [(i) for i in range(len(user)) if user[i] == '-']
 
         if tipoPrediccion == 'simple':
-            sumNumerador = 0
-            sumDenominador = 0
-
             for index in missing_indexes:
+                sumNumerador = 0
+                sumDenominador = 0
                 neighbors = similarNeighbours(user, matrix, metrica, numeroVecinos)
                 for otherUser in neighbors:
-                    sumNumerador += (otherUser[1] * float(otherUser[0][index]))
-                    sumDenominador += abs(otherUser[1])
-
-            prediction = sumNumerador / sumDenominador
-            user[index] = round(prediction, 2)
+                    value = otherUser[0][index]
+                    if value != '-':
+                        sumNumerador += (otherUser[1] * float(value))
+                        sumDenominador += abs(otherUser[1])
+                if sumDenominador != 0:
+                    prediction = sumNumerador / sumDenominador
+                    user[index] = round(prediction, 2)
 
         elif tipoPrediccion == 'media':
-            sumNumerador = 0
-            sumDenominador = 0
-
             for index in missing_indexes:
+                sumNumerador = 0
+                sumDenominador = 0
                 neighbors = similarNeighbours(user, matrix, metrica, numeroVecinos)
                 for otherUser in neighbors:
-                    sumNumerador += (otherUser[1] * (float(otherUser[0][index]) - userAverage(otherUser[0])))
-                    sumDenominador += abs(otherUser[1])
-
-            prediction = userAverage(user) + (sumNumerador / sumDenominador)
-            user[index] = round(prediction, 2)
+                    value = otherUser[0][index]
+                    if value != '-':
+                        sumNumerador += (otherUser[1] * (float(value) - userAverage(otherUser[0])))
+                        sumDenominador += abs(otherUser[1])
+                if sumDenominador != 0:
+                    prediction = userAverage(user) + (sumNumerador / sumDenominador)
+                    user[index] = round(prediction, 2)
 
     return matrix
+
 
 # Main para testear, comprueben con el otro archivo de matriz2.txt también que seguro lo pedirá en clase y en la corrección
 
