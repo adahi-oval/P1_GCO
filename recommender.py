@@ -142,13 +142,13 @@ def similarNeighbours(user, matrix, metrica, numeroVecinos):
         for i in range(numeroVecinos):
             neighbours.append(corrArray[i])
     elif metrica == 'cosine':  
-        cosineArray = sorted(cosineArray(user, matrizSinIncompatibles), key=lambda x: x[1], reverse=True)
+        cosArray = sorted(cosineArray(user, matrizSinIncompatibles), key=lambda x: x[1], reverse=True)
         for i in range(numeroVecinos):
-            neighbours.append(cosineArray[i])
+            neighbours.append(cosArray[i])
     elif metrica == 'euclidean':
-        euclideanArray = sorted(euclideanArray(user, matrizSinIncompatibles), key=lambda x: x[1])
+        eucliArray = sorted(euclideanArray(user, matrizSinIncompatibles), key=lambda x: x[1])
         for i in range(numeroVecinos):
-            neighbours.append(euclideanArray[i])
+            neighbours.append(eucliArray[i])
     return neighbours
 
 
@@ -187,7 +187,6 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
             user[index] = round(prediction, 2)
 
     return matrix
-
 
 # Main para testear, comprueben con el otro archivo de matriz2.txt también que seguro lo pedirá en clase y en la corrección
 
