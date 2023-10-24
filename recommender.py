@@ -5,8 +5,8 @@ def cosineDistance(user1, user2):
     user1Ratings, user2Ratings = commonItemArrays(user1, user2)
 
     dotProduct = sum(user1Ratings[i] * user2Ratings[i] for i in range(len(user1Ratings)))
-    magnitudeUser1 = math.sqrt(sum(user1Ratings[i] ** 2 for i in range(len(user1Ratings)))
-    magnitudeUser2 = math.sqrt(sum(user2Ratings[i] ** 2 for i in range(len(user2Ratings)))
+    magnitudeUser1 = math.sqrt(sum(user1Ratings[i] ** 2 for i in range(len(user1Ratings))))
+    magnitudeUser2 = math.sqrt(sum(user2Ratings[i] ** 2 for i in range(len(user2Ratings))))
 
     if magnitudeUser1 == 0 or magnitudeUser2 == 0:
         return 0.0
