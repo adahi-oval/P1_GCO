@@ -195,4 +195,4 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
 
 ratings, min_val, max_val = readMatrix("matriz2.txt")
 
-print(calculatePredictions(ratings, 'cosine', 2, 'media', min_val, max_val))
+print(calculatePredictions(ratings, 'euclidean', 2, 'simple', min_val, max_val))
