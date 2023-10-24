@@ -171,8 +171,11 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
                     sumNumerador += (otherUser[1] * float(otherUser[0][index]))
                     sumDenominador += abs(otherUser[1])
                 
-                prediction = sumNumerador / sumDenominador
-                user[index] = round(prediction, 2)
+                if sumDenominador != 0:   
+                    prediction = sumNumerador / sumDenominador
+                    user[index] = round(prediction, 2)
+                else:
+                    print("No se puede dividir por 0")
 
         elif tipoPrediccion == 'media': # Calcula la prediccion en base a la formula de distancia con la media
             sumNumerador = 0
@@ -185,13 +188,16 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
                     sumNumerador += (otherUser[1] * (float(otherUser[0][index]) - userAverage(otherUser[0])))
                     sumDenominador += abs(otherUser[1])
                 
-                prediction = userAverage(user) + (sumNumerador / sumDenominador)
-                user[index] = round(prediction, 2)
+                if sumDenominador != 0:
+                    prediction = userAverage(user) + (sumNumerador / sumDenominador)
+                    user[index] = round(prediction, 2)
+                else: 
+                    print("No se puede dividir por 0")
 
     return matrix
 
 # Main para testear, comprueben con el otro archivo de matriz2.txt también que seguro lo pedirá en clase y en la corrección
 
-ratings, min_val, max_val = readMatrix("matriz3.txt")
+ratings, min_val, max_val = readMatrix("matriz.txt")
 
-print(calculatePredictions(ratings, 'cosine', 2, 'simple', min_val, max_val))
+print(calculatePredictions(ratings, 'pearson', 2, 'media', min_val, max_val))
