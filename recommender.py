@@ -190,6 +190,6 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
 
 # Main para testear, comprueben con el otro archivo de matriz2.txt también que seguro lo pedirá en clase y en la corrección
 
-ratings, min_val, max_val = readMatrix("matriz.txt")
+ratings, min_val, max_val = readMatrix("matriz2.txt")
 
 print(calculatePredictions(ratings, 'cosine', 2, 'media', min_val, max_val))
