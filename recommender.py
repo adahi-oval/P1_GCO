@@ -1,6 +1,3 @@
-def readMatrix(filename): # Lee la matriz con el formato adecuado, la primera linea como valor minimo, la segunda como valor maximo y el resto de lineas como usuarios individuales
-    with open(filename, "r") as matriz:
-        file = matriz.read()
 
     lineas = file.split("\n")
     valorMin, valorMax, *valoraciones = (linea.split() for linea in lineas)
