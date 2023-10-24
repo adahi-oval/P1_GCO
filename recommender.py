@@ -73,6 +73,56 @@ def pearsonArray(user, matrix): # Devuelve un array de tuplas de correlaciones d
     return pearsonRatings # Cada elemento del array es la lista de valoraciones del usuario como primer elemento y el segundo elemento la correlacion con el usuario original
 
 
+def cosineCorelation(user1, user2):
+    user1Ratings, user2Ratings = commonItemArrays(user1, user2)
+
+    sumNumerador = 0
+    sumDenominador1 = 0
+    sumDenominador2 = 0
+
+    for i in range(len(user1Ratings)):
+        sumNumerador += (user1Ratings[i] * user2Ratings[i])
+        sumDenominador1 += (user1Ratings[i] ** 2)
+        sumDenominador2 += (user2Ratings[i] ** 2)
+
+    return (sumNumerador / ((sumDenominador1 ** 0.5) * (sumDenominador2 ** 0.5)))
+
+def cosineArray(user, matrix):
+    cosineRatings = []
+
+    for otherUser in matrix:
+        if user == otherUser:
+            continue
+
+        correlation = cosineCorelation(user, otherUser)
+        cosineRatings.append((otherUser, correlation))
+    
+    return cosineRatings
+
+
+def euclideanCorelation(user1, user2):
+    user1Ratings, user2Ratings = commonItemArrays(user1, user2)
+    result = 0
+
+    for i in range(len(user1Ratings)):
+        result += ((user1Ratings[i] - user2Ratings[i]) ** 2)
+    
+    return (result ** 0.5)
+
+
+def euclideanArray(user, matrix):
+    euclideanRatings = []
+
+    for otherUser in matrix:
+        if user == otherUser:
+            continue
+
+        correlation = euclideanCorelation(user, otherUser)
+        euclideanRatings.append((otherUser, correlation))
+
+    return euclideanRatings
+
+
 def similarNeighbours(user, matrix, metrica, numeroVecinos): # Devuelve un array de los vecinos más similares segun la metrica elegida y el numero de vecinos estipulado
     neighbours = []
 
@@ -88,6 +138,14 @@ def similarNeighbours(user, matrix, metrica, numeroVecinos): # Devuelve un array
 
     if metrica == 'pearson': # Aqui falta añadir otros dos casos de distancia coseno y distancia euclidea
         corrArray = sorted(pearsonArray(user, matrizSinIncompatibles), key=lambda x: x[1], reverse=True)
+        for i in range(numeroVecinos):
+            neighbours.append(corrArray[i])
+    elif metrica == 'cosine':
+        corrArray = sorted(cosineArray(user, matrizSinIncompatibles), key=lambda x: x[1], reverse=True)
+        for i in range(numeroVecinos):
+            neighbours.append(corrArray[i])
+    elif metrica == 'euclidean':
+        corrArray = sorted(euclideanArray(user, matrizSinIncompatibles), key=lambda x: x[1])
         for i in range(numeroVecinos):
             neighbours.append(corrArray[i])
     
@@ -108,6 +166,8 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
             
             for index in missing_indexes: # Bucle para que calcule todos los indices que faltan, porque puede haber mas de uno
                 for otherUser in similarNeighbours(user, matrix, metrica, numeroVecinos):
+                    if otherUser[0][index] == '-':
+                        continue
                     sumNumerador += (otherUser[1] * float(otherUser[0][index]))
                     sumDenominador += abs(otherUser[1])
                 
@@ -120,6 +180,8 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
 
             for index in missing_indexes: # Bucle para que calcule todos los indices que faltan, porque puede haber mas de uno
                 for otherUser in similarNeighbours(user, matrix, metrica, numeroVecinos): # Calcula para cada vecino la predicción
+                    if otherUser[0][index] == '-':
+                        continue
                     sumNumerador += (otherUser[1] * (float(otherUser[0][index]) - userAverage(otherUser[0])))
                     sumDenominador += abs(otherUser[1])
                 
@@ -130,6 +192,6 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
 
 # Main para testear, comprueben con el otro archivo de matriz2.txt también que seguro lo pedirá en clase y en la corrección
 
-ratings, min_val, max_val = readMatrix("matriz2.txt")
+ratings, min_val, max_val = readMatrix("matriz3.txt")
 
-print(calculatePredictions(ratings, 'pearson', 2, 'simple', min_val, max_val))
+print(calculatePredictions(ratings, 'cosine', 2, 'simple', min_val, max_val))
