@@ -1,3 +1,6 @@
+def readMatrix(filename): # Lee la matriz con el formato adecuado, la primera linea como valor minimo, la segunda como valor maximo y el resto de lineas como usuarios individuales
+    with open(filename, "r") as matriz:
+        file = matriz.read()
 
     lineas = file.split("\n")
     valorMin, valorMax, *valoraciones = (linea.split() for linea in lineas)
@@ -197,4 +200,4 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
 
 ratings, min_val, max_val = readMatrix("matriz.txt")
 
-print(calculatePredictions(ratings, 'pearson', 2, 'media', min_val, max_val))
+print(calculatePredictions(ratings, 'euclidean', 2, 'simple', min_val, max_val))
