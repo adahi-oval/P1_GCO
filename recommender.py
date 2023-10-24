@@ -1,3 +1,5 @@
+import argparse
+
 def readMatrix(filename): # Lee la matriz con el formato adecuado, la primera linea como valor minimo, la segunda como valor maximo y el resto de lineas como usuarios individuales
     with open(filename, "r") as matriz:
         file = matriz.read()
@@ -173,7 +175,12 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
                 
                 if sumDenominador != 0:   
                     prediction = sumNumerador / sumDenominador
-                    user[index] = round(prediction, 2)
+                    if prediction > float(max_val[0]): # Comprobación de que está dentro del rango
+                        user[index] = float(max_val[0])
+                    elif prediction < float(min_val[0]):
+                        user[index] = float(min_val[0])
+                    else:
+                        user[index] = round(prediction, 2)
                 else:
                     print("No se puede dividir por 0")
 
@@ -190,7 +197,12 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
                 
                 if sumDenominador != 0:
                     prediction = userAverage(user) + (sumNumerador / sumDenominador)
-                    user[index] = round(prediction, 2)
+                    if prediction > float(max_val[0]): # Comprobación de que está dentro del rango
+                        user[index] = float(max_val[0])
+                    elif prediction < float(min_val[0]):
+                        user[index] = float(min_val[0])
+                    else:
+                        user[index] = round(prediction, 2)
                 else: 
                     print("No se puede dividir por 0")
 
@@ -200,4 +212,21 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
 
 ratings, min_val, max_val = readMatrix("matriz.txt")
 
-print(calculatePredictions(ratings, 'euclidean', 2, 'simple', min_val, max_val))
+print(calculatePredictions(ratings, 'pearson', 4, 'media', min_val, max_val))
+
+parser = argparse.ArgumentParser(description="Parser para el sistema de recomendación")
+
+grupoMetrica = parser.add_mutually_exclusive_group(required=True)
+grupoMetrica.add_argument('-p','--pearson', action='store_true', help='Correlacion de Pearson')
+grupoMetrica.add_argument('-c','--cosine',action='store_true', help='Distancia coseno')
+grupoMetrica.add_argument('-e', '--euclidean', action='store_true', help='Distancia euclídea')
+
+grupoPrediccion = parser.add_mutually_exclusive_group(required=True)
+grupoPrediccion.add_argument('-s', '--simple', action='store_true', help='Tipo de predicción simple')
+grupoPrediccion.add_argument('-m', '--media', action='store_true', help='Tipo de predicción distancia con la media')
+
+parser.add_argument('-f', '--file', required=True, type=str, help='Nombre archivo de matriz de entrada')
+
+parser.add_argument('-o', '--output', type=str, help='Nombre archivo de salida (opcional)')
+
+parser.add_argument('-n', '--neighbours', type=int, help='Numero de vecinos a considerar', required=True)
