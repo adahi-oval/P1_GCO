@@ -1,3 +1,18 @@
+import math
+
+# Función para calcular la distancia del coseno entre dos usuarios
+def cosineDistance(user1, user2):
+    user1Ratings, user2Ratings = commonItemArrays(user1, user2)
+
+    dotProduct = sum(user1Ratings[i] * user2Ratings[i] for i in range(len(user1Ratings)))
+    magnitudeUser1 = math.sqrt(sum(user1Ratings[i] ** 2 for i in range(len(user1Ratings)))
+    magnitudeUser2 = math.sqrt(sum(user2Ratings[i] ** 2 for i in range(len(user2Ratings)))
+
+    if magnitudeUser1 == 0 or magnitudeUser2 == 0:
+        return 0.0
+
+    return dotProduct / (magnitudeUser1 * magnitudeUser2)
+
 def readMatrix(filename): # Lee la matriz con el formato adecuado, la primera linea como valor minimo, la segunda como valor maximo y el resto de lineas como usuarios individuales
     with open(filename, "r") as matriz:
         file = matriz.read()
@@ -73,25 +88,29 @@ def pearsonArray(user, matrix): # Devuelve un array de tuplas de correlaciones d
     return pearsonRatings # Cada elemento del array es la lista de valoraciones del usuario como primer elemento y el segundo elemento la correlacion con el usuario original
 
 
-def similarNeighbours(user, matrix, metrica, numeroVecinos): # Devuelve un array de los vecinos más similares segun la metrica elegida y el numero de vecinos estipulado
+def similarNeighbours(user, matrix, metrica, numeroVecinos):
     neighbours = []
 
     missing_indexes = [(i) for i in range(len(user)) if user[i] == '-']
 
     matrizSinIncompatibles = []
 
-    for otherUser in matrix: # Quitamos de la matriz los otros usuarios que no tengan valorados los items que intentamos predecir del usuario
+    for otherUser in matrix:
         for index in missing_indexes:
             if otherUser[index] != '-':
                 matrizSinIncompatibles.append(otherUser)
 
-
-    if metrica == 'pearson': # Aqui falta añadir otros dos casos de distancia coseno y distancia euclidea
+    if metrica == 'pearson':
         corrArray = sorted(pearsonArray(user, matrizSinIncompatibles), key=lambda x: x[1], reverse=True)
         for i in range(numeroVecinos):
             neighbours.append(corrArray[i])
-    
+    elif metrica == 'cosine':  # Agregar caso para la distancia del coseno
+        cosineArray = sorted(cosineArray(user, matrizSinIncompatibles), key=lambda x: x[1], reverse=True)
+        for i in range(numeroVecinos):
+            neighbours.append(cosineArray[i])
+
     return neighbours
+
 
 
 def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val, max_val): # Funcion final que devolverá la matriz rellena con las predicciones dependiendo del método usado
