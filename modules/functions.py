@@ -1,3 +1,9 @@
+RED = "\033[31m"
+GREEN = "\033[32m"
+BLUE = "\033[34m"
+RESET = "\033[0m"
+
+
 def readMatrix(filename): # Lee la matriz con el formato adecuado, la primera linea como valor minimo, la segunda como valor maximo y el resto de lineas como usuarios individuales
     with open(filename, "r") as matriz:
         file = matriz.read()
@@ -59,17 +65,21 @@ def pearsonCorelation(user1, user2): # Devuelve la correlacion de Pearson entre 
     return (sumNumerador / ((sumDenominador1 ** 0.5) * (sumDenominador2 ** 0.5)))
 
 
-def pearsonArray(user, matrix): # Devuelve un array de tuplas de correlaciones de Pearson junto con el usuario correspondiente con el resto de usuarios de la matriz proporcionada, falta comprobacion de que el usuario esta en la matriz
+def pearsonArray(user, matrix, index): # Devuelve un array de tuplas de correlaciones de Pearson junto con el usuario correspondiente con el resto de usuarios de la matriz proporcionada, falta comprobacion de que el usuario esta en la matriz
 
     pearsonRatings = []
 
-    for otherUser in matrix:
+    print(f"\nSimilitudes entre el {BLUE}usuario {index}{RESET} y el resto de usuarios compatibles:")
+
+    for i,otherUser in enumerate(matrix):
         if user == otherUser:
             continue
 
         correlation = pearsonCorelation(user, otherUser)
         pearsonRatings.append((otherUser, correlation))
 
+        print(f"  Usuario {i+1}: {GREEN}{correlation}{RESET}")
+    
     return pearsonRatings # Cada elemento del array es la lista de valoraciones del usuario como primer elemento y el segundo elemento la correlacion con el usuario original
 
 
@@ -87,15 +97,19 @@ def cosineCorelation(user1, user2):
 
     return (sumNumerador / ((sumDenominador1 ** 0.5) * (sumDenominador2 ** 0.5)))
 
-def cosineArray(user, matrix):
+def cosineArray(user, matrix, index):
     cosineRatings = []
 
-    for otherUser in matrix:
+    print(f"\nSimilitudes entre el {BLUE}usuario {index}{RESET} y el resto de usuarios compatibles:")
+
+    for i,otherUser in enumerate(matrix):
         if user == otherUser:
             continue
 
         correlation = cosineCorelation(user, otherUser)
         cosineRatings.append((otherUser, correlation))
+
+        print(f"  Usuario {i+1}: {GREEN}{correlation}{RESET}")
     
     return cosineRatings
 
@@ -110,20 +124,24 @@ def euclideanCorelation(user1, user2):
     return (result ** 0.5)
 
 
-def euclideanArray(user, matrix):
+def euclideanArray(user, matrix, index):
     euclideanRatings = []
 
-    for otherUser in matrix:
+    print(f"\nSimilitudes entre el {BLUE}usuario {index}{RESET} y el resto de usuarios compatibles:")
+
+    for i,otherUser in enumerate(matrix):
         if user == otherUser:
             continue
 
         correlation = euclideanCorelation(user, otherUser)
         euclideanRatings.append((otherUser, correlation))
 
+        print(f"  Usuario {i+1}: {GREEN}{correlation}{RESET}")
+
     return euclideanRatings
 
 
-def similarNeighbours(user, matrix, metrica, numeroVecinos): # Devuelve un array de los vecinos más similares segun la metrica elegida y el numero de vecinos estipulado
+def similarNeighbours(user, matrix, metrica, numeroVecinos, printIndex): # Devuelve un array de los vecinos más similares segun la metrica elegida y el numero de vecinos estipulado
     neighbours = []
 
     missing_indexes = [(i) for i in range(len(user)) if user[i] == '-']
@@ -133,28 +151,34 @@ def similarNeighbours(user, matrix, metrica, numeroVecinos): # Devuelve un array
     for otherUser in matrix: # Quitamos de la matriz los otros usuarios que no tengan valorados los items que intentamos predecir del usuario
         for index in missing_indexes:
             if otherUser[index] != '-':
-                matrizSinIncompatibles.append(otherUser)
+                if otherUser in matrizSinIncompatibles:
+                    continue
+                else:
+                    matrizSinIncompatibles.append(otherUser)
 
 
     if metrica == 'pearson': # Aqui falta añadir otros dos casos de distancia coseno y distancia euclidea
-        corrArray = sorted(pearsonArray(user, matrizSinIncompatibles), key=lambda x: x[1], reverse=True)
+        corrArray = sorted(pearsonArray(user, matrizSinIncompatibles,printIndex), key=lambda x: x[1], reverse=True)
+
         for i in range(numeroVecinos):
             neighbours.append(corrArray[i])
     elif metrica == 'cosine':
-        corrArray = sorted(cosineArray(user, matrizSinIncompatibles), key=lambda x: x[1], reverse=True)
+        corrArray = sorted(cosineArray(user, matrizSinIncompatibles,printIndex), key=lambda x: x[1], reverse=True)
         for i in range(numeroVecinos):
             neighbours.append(corrArray[i])
     elif metrica == 'euclidean':
-        corrArray = sorted(euclideanArray(user, matrizSinIncompatibles), key=lambda x: x[1])
+        corrArray = sorted(euclideanArray(user, matrizSinIncompatibles,printIndex), key=lambda x: x[1])
         for i in range(numeroVecinos):
             neighbours.append(corrArray[i])
     
+    for vecino in neighbours:
+        print(f"\nEl usuario con correlación {RED}{round(vecino[1],2)}{RESET} ha sido seleccionado, sus valoraciones son:\n  {BLUE}{vecino[0]}{RESET}")
     return neighbours
 
 
 def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val, max_val): # Funcion final que devolverá la matriz rellena con las predicciones dependiendo del método usado
 
-    for user in matrix:
+    for printIndex, user in enumerate(matrix):
         if '-' not in user:
             continue
 
@@ -165,7 +189,7 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
             sumDenominador = 0
             
             for index in missing_indexes: # Bucle para que calcule todos los indices que faltan, porque puede haber mas de uno
-                for otherUser in similarNeighbours(user, matrix, metrica, numeroVecinos):
+                for otherUser in similarNeighbours(user, matrix, metrica, numeroVecinos, printIndex):
                     if otherUser[0][index] == '-':
                         continue
                     sumNumerador += (otherUser[1] * float(otherUser[0][index]))
@@ -186,8 +210,9 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
             sumNumerador = 0
             sumDenominador = 0
 
+            vecinosSimilares = similarNeighbours(user, matrix, metrica, numeroVecinos, printIndex)
             for index in missing_indexes: # Bucle para que calcule todos los indices que faltan, porque puede haber mas de uno
-                for otherUser in similarNeighbours(user, matrix, metrica, numeroVecinos): # Calcula para cada vecino la predicción
+                for otherUser in vecinosSimilares: # Calcula para cada vecino la predicción
                     if otherUser[0][index] == '-':
                         continue
                     sumNumerador += (otherUser[1] * (float(otherUser[0][index]) - userAverage(otherUser[0])))

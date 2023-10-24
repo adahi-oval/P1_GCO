@@ -1,5 +1,11 @@
 import modules.myParser as myParser
 import modules.functions as functions
+
+RED = "\033[31m"
+GREEN = "\033[32m"
+BLUE = "\033[34m"
+RESET = "\033[0m"
+
 # Main para testear, comprueben con el otro archivo de matriz2.txt también que seguro lo pedirá en clase y en la corrección
 
 args = myParser.Parser()
@@ -34,14 +40,21 @@ predictionMatrix = functions.calculatePredictions(ratings, metrica, numeroVecino
 
 
 string = ''
+output = ''
 
 for row in predictionMatrix:
+    output += "\t"
     for item in row:
         if type(item) is int or type(item) is float:
             string += "'" + str(item) + "'" + " "
+            output += f"{GREEN}{str(item)}{RESET} "
         else:
             string += item + " "
+            output += item + " "
     string += '\n'
+    output += '\n'
 
-with open(nombre_salida, 'w') as output:
-    output.write(string)
+with open(nombre_salida, 'w') as outputFile:
+    outputFile.write(string)
+
+print(f"\nMatriz rellena con las predicciones:\n\n{output}")
