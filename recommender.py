@@ -130,6 +130,6 @@ def calculatePredictions(matrix, metrica, numeroVecinos, tipoPrediccion, min_val
 
 # Main para testear, comprueben con el otro archivo de matriz2.txt también que seguro lo pedirá en clase y en la corrección
 
-ratings, min_val, max_val = readMatrix("matriz.txt")
+ratings, min_val, max_val = readMatrix("matriz2.txt")
 
-print(similarNeighbours(['3.0', '2.0', '-', '4.0'], ratings, 'pearson', 2))
+print(calculatePredictions(ratings, 'pearson', 2, 'simple', min_val, max_val))
